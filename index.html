@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Concurso de Traslado 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#007849',
+                        secondary: '#2c3e50',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background-color: white; }
+            #app-content { padding: 0; }
+        }
+        .print-only { display: none; }
+        
+        /* Custom Tooltip Styles */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 0.25rem;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            width: 220px;
+            background-color: #1f2937;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 50;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.75rem;
+            pointer-events: none;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1f2937 transparent transparent transparent;
+        }
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Hide scrollbar for tabs */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-gray-50 text-slate-800 font-sans">
+
+    <!-- Landing Page Overlay -->
+    <div id="landing-page" class="fixed inset-0 z-50 bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
+        <div class="bg-white max-w-lg w-full rounded-2xl shadow-xl p-8 text-center border border-gray-100">
+            <div class="mb-6 flex justify-center">
+                <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white shadow-lg">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                </div>
+            </div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-1">Calculadora Concurso de Traslados 2025</h1>
+            <p class="text-sm text-primary font-semibold mb-2">Creada por MaestroRafa</p>
+            <p class="text-gray-500 mb-8">Cuerpo de Maestros y Secundaria</p>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-left text-sm text-yellow-800 mb-8 rounded-r">
+                <p class="font-bold mb-1">⚠️ Aviso Legal e Importante</p>
+                <p>Esta aplicación es una herramienta de simulación <strong>NO OFICIAL</strong> desarrollada para facilitar el cálculo del baremo.</p>
+                <p class="mt-2">El autor <strong>no se hace responsable</strong> de posibles errores en los cálculos ni de las decisiones que se tomen basándose en los resultados obtenidos aquí. Para el cálculo definitivo y vinculante, debe consultarse siempre la normativa oficial vigente publicada en el BOJA.</p>
+            </div>
+
+            <button onclick="closeLanding()" class="w-full bg-primary hover:bg-[#00623b] text-white font-bold py-3 px-6 rounded-xl shadow-md transform transition hover:scale-[1.02] active:scale-[0.98]">
+                Entendido, acceder a la calculadora
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app-container" class="min-h-screen flex flex-col transition-opacity duration-500 opacity-0">
+        
+        <!-- Header -->
+        <header class="bg-white shadow-sm sticky top-0 z-40 no-print">
+            <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+                <h1 class="text-xl font-bold text-primary flex items-center gap-2">
+                    <span class="bg-primary text-white p-1 rounded text-sm">2025</span>
+                    <span class="hidden sm:inline">Calculadora Concurso Traslados</span>
+                    <span class="sm:hidden">CGT 2025</span>
+                </h1>
+                <div class="text-right">
+                    <div class="text-xs text-gray-500 uppercase tracking-wider">Puntos Totales</div>
+                    <div class="text-xl font-bold text-secondary leading-none" id="header-total-score">0.0000</div>
+                </div>
+            </div>
+            
+            <!-- Navigation Tabs -->
+            <div class="max-w-5xl mx-auto px-4 overflow-x-auto scrollbar-hide">
+                <nav class="flex space-x-1 border-b border-gray-200" id="tabs-container">
+                    <!-- Tabs injected by JS -->
+                </nav>
+            </div>
+        </header>
+
+        <!-- Print Header -->
+        <div class="hidden print-only p-8 text-center border-b mb-4">
+            <h1 class="text-3xl font-bold text-primary">Informe de Baremación</h1>
+            <p class="text-gray-600">Concurso General de Traslados 2025</p>
+            <p class="text-xs text-gray-400 mt-2">Documento no oficial / Creada por MaestroRafa</p>
+        </div>
+
+        <!-- Content Area -->
+        <main class="max-w-5xl mx-auto px-4 py-6 pb-20 flex-grow w-full" id="main-content">
+            <!-- Section content injected by JS -->
+        </main>
+
+    </div>
+
+    <script>
+        // --- STATE MANAGEMENT ---
+        const INITIAL_STATE = {
+            // 1. Antigüedad
+            s1_1_1_years: 0, s1_1_1_months: 0,
+            s1_1_2_years: 0, s1_1_2_months: 0,
+            s1_1_3_years: 0, s1_1_3_months: 0,
+            s1_2_1_years: 0, s1_2_1_months: 0,
+            s1_2_2_years: 0, s1_2_2_months: 0,
+            s1_2_3_years: 0, s1_2_3_months: 0,
+            // 2. Catedráticos
+            s2_catedratico: false,
+            // 3. Académicos
+            s3_1_1_doctor: false,
+            s3_1_2_masters: 0,
+            s3_1_3_dea: false,
+            s3_1_4_premio_doctor: false,
+            s3_2_1_grados: 0,
+            s3_2_2_primer_ciclo: 0,
+            s3_2_3_segundo_ciclo: 0,
+            s3_3_idiomas_nivel: 'none',
+            s3_3_titulos_arte: 0,
+            // 4. Cargos
+            s4_1_director_years: 0, s4_1_director_months: 0,
+            s4_2_vicedir_years: 0, s4_2_vicedir_months: 0,
+            s4_3_coord_years: 0, s4_3_coord_months: 0,
+            s4_3_jefe_dept_years: 0,
+            s4_3_tutor_years: 0,
+            // 5. Formación
+            s5_1_horas: 0,
+            s5_2_horas: 0,
+            s5_3_especialidades: 0,
+            s5_4_competencia_digital: 'none',
+            // 6. Otros
+            s6_1_libros_autor: 0,
+            s6_1_libros_coautor: 0,
+            s6_1_revistas: 0,
+            s6_2_intl_1: 0, s6_2_intl_2: 0, s6_2_intl_3: 0,
+            s6_2_nat_1: 0, s6_2_nat_2: 0, s6_2_nat_3: 0,
+            s6_2_auto_1: 0, s6_2_auto_2: 0, s6_2_auto_3: 0,
+            s6_2_coord_proyectos_years: 0,
+            s6_2_part_proyectos_years: 0,
+            s6_3_meritos_artisticos: 0,
+            s6_4_puestos_admin_years: 0, s6_4_puestos_admin_months: 0,
+            s6_5_tribunales: 0,
+            s6_6_tutor_master: 0
+        };
+
+        let state = { ...INITIAL_STATE };
+        let activeTabId = 1;
+
+        // --- CALCULATION LOGIC ---
+        const calcTime = (years, months, ptsPerYear, ptsPerMonth) => (years * ptsPerYear) + (months * ptsPerMonth);
+
+        const Calculators = {
+            // Sec 1
+            calc11: (s) => {
+                let y = s.s1_1_1_years, m = s.s1_1_1_months;
+                y += Math.floor(m / 12); m %= 12;
+                let pts = 0;
+                for (let i = 1; i <= y; i++) pts += (i <= 2 ? 4.0 : (i === 3 ? 6.0 : 8.0));
+                let rate = (y + 1 <= 2) ? 0.3333 : (y + 1 === 3 ? 0.5000 : 0.6666);
+                pts += m * rate;
+                pts += calcTime(s.s1_1_2_years, s.s1_1_2_months, 4.0, 0.3333);
+                pts += calcTime(s.s1_1_3_years, s.s1_1_3_months, 4.0, 0.3333);
+                return pts;
+            },
+            calc12: (s) => {
+                return calcTime(s.s1_2_1_years, s.s1_2_1_months, 2.0, 0.1666) +
+                       calcTime(s.s1_2_2_years, s.s1_2_2_months, 1.5, 0.1250) +
+                       calcTime(s.s1_2_3_years, s.s1_2_3_months, 0.75, 0.0625);
+            },
+            section1: (s) => parseFloat((Calculators.calc11(s) + Calculators.calc12(s)).toFixed(4)),
+
+            // Sec 2
+            section2: (s) => s.s2_catedratico ? 5.0000 : 0,
+
+            // Sec 3
+            calc31: (s) => {
+                let pts = 0;
+                if (s.s3_1_1_doctor) pts += 6.0;
+                pts += s.s3_1_2_masters * 3.0;
+                if (s.s3_1_3_dea) pts += 2.0;
+                if (s.s3_1_4_premio_doctor) pts += 1.0;
+                return pts;
+            },
+            calc32: (s) => (s.s3_2_1_grados * 5.0) + (s.s3_2_2_primer_ciclo * 3.0) + (s.s3_2_3_segundo_ciclo * 3.0),
+            calc33: (s) => {
+                let pts = 0;
+                switch(s.s3_3_idiomas_nivel) {
+                    case 'C2': pts += 4; break;
+                    case 'C1': pts += 3; break;
+                    case 'B2': pts += 2; break;
+                    case 'B1': pts += 1; break;
+                }
+                pts += s.s3_3_titulos_arte * 2.0;
+                return pts;
+            },
+            section3: (s) => Math.min(Calculators.calc31(s) + Calculators.calc32(s) + Calculators.calc33(s), 10.0),
+
+            // Sec 4
+            calc41: (s) => calcTime(s.s4_1_director_years, s.s4_1_director_months, 4.5, 0.3750),
+            calc42: (s) => calcTime(s.s4_2_vicedir_years, s.s4_2_vicedir_months, 3.0, 0.2500),
+            calc43: (s) => {
+                const c = calcTime(s.s4_3_coord_years, s.s4_3_coord_months, 1.0, 0.0833);
+                const j = s.s4_3_jefe_dept_years * 1.5;
+                const t = s.s4_3_tutor_years * 0.3;
+                return Math.min(c + j + t, 10.0);
+            },
+            section4: (s) => Math.min(Calculators.calc41(s) + Calculators.calc42(s) + Calculators.calc43(s), 30.0),
+
+            // Sec 5
+            calc51: (s) => Math.min(Math.floor(s.s5_1_horas / 10) * 0.1, 9.0),
+            calc52: (s) => Math.min(Math.floor(s.s5_2_horas / 3) * 0.1, 3.0),
+            calc53: (s) => s.s5_3_especialidades * 1.0,
+            calc54: (s) => {
+                const map = { 'A1': 0.5, 'A2': 1.0, 'B1': 1.5, 'B2': 2.0, 'C1': 2.5, 'C2': 3.0 };
+                return map[s.s5_4_competencia_digital] || 0;
+            },
+            section5: (s) => Math.min(Calculators.calc51(s) + Calculators.calc52(s) + Calculators.calc53(s) + Calculators.calc54(s), 15.0),
+
+            // Sec 6
+            calc61: (s) => Math.min((s.s6_1_libros_autor * 1.0) + (s.s6_1_libros_coautor * 0.5) + (s.s6_1_revistas * 0.2), 8.0),
+            calc62: (s) => {
+                let pts = (s.s6_2_intl_1 * 1.5) + (s.s6_2_intl_2 * 0.75) + (s.s6_2_intl_3 * 0.5) +
+                          (s.s6_2_nat_1 * 1.0) + (s.s6_2_nat_2 * 0.5) + (s.s6_2_nat_3 * 0.25) +
+                          (s.s6_2_auto_1 * 0.5) + (s.s6_2_auto_2 * 0.25) + (s.s6_2_auto_3 * 0.1) +
+                          (s.s6_2_coord_proyectos_years * 0.5) + (s.s6_2_part_proyectos_years * 0.2);
+                return Math.min(pts, 2.5);
+            },
+            calc63: (s) => Math.min(s.s6_3_meritos_artisticos * 0.5, 2.5),
+            calc64: (s) => calcTime(s.s6_4_puestos_admin_years, s.s6_4_puestos_admin_months, 1.5, 0.125),
+            calc65: (s) => s.s6_5_tribunales * 0.5,
+            calc66: (s) => s.s6_6_tutor_master * 0.1,
+            section6: (s) => Math.min(Calculators.calc61(s) + Calculators.calc62(s) + Calculators.calc63(s) + Calculators.calc64(s) + Calculators.calc65(s) + Calculators.calc66(s), 15.0),
+            
+            total: (s) => Calculators.section1(s) + Calculators.section2(s) + Calculators.section3(s) + Calculators.section4(s) + Calculators.section5(s) + Calculators.section6(s)
+        };
+
+        // --- UI GENERATORS ---
+        const Tabs = [
+            { id: 1, label: '1. Antigüedad' },
+            { id: 2, label: '2. Catedráticos' },
+            { id: 3, label: '3. Académicos' },
+            { id: 4, label: '4. Cargos' },
+            { id: 5, label: '5. Formación' },
+            { id: 6, label: '6. Otros' },
+            { id: 7, label: 'Resumen' },
+        ];
+
+        const Icons = {
+            help: `<svg class="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
+        };
+
+        // Components
+        const SectionTitle = (title, ptsId) => `
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-primary border-b-2 border-primary/20 pb-2">${title}</h2>
+                <span class="text-2xl font-bold text-primary" id="${ptsId}">0.0000 pts</span>
+            </div>`;
+
+        const SubTitle = (title, ptsId, tooltipText = '') => `
+            <h3 class="text-lg font-semibold text-secondary mt-6 mb-3 flex justify-between items-end border-b border-gray-100 pb-1">
+                <div class="flex items-center">
+                    ${title}
+                    ${tooltipText ? `<div class="tooltip-container">${Icons.help}<span class="tooltip-text">${tooltipText}</span></div>` : ''}
+                </div>
+                ${ptsId ? `<span class="text-sm font-bold text-primary bg-primary/10 px-2 py-0.5 rounded" id="${ptsId}">0.0000 pts</span>` : ''}
+            </h3>`;
+
+        const InfoBox = (text) => `<div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 text-sm text-blue-700">${text}</div>`;
+
+        const NumInput = (label, name, step=1, max=999, className="flex-col") => `
+            <div class="flex ${className}">
+                ${label ? `<label class="text-sm font-medium text-gray-700 mb-1">${label}</label>` : ''}
+                <input type="number" name="${name}" min="0" max="${max}" step="${step}" value="${state[name]}" 
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition bg-white" 
+                    oninput="handleInput(this)">
+            </div>`;
+
+        const YMInput = (label, yName, mName) => `
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mb-4">
+                <label class="block text-sm font-semibold text-gray-800 mb-2">${label}</label>
+                <div class="flex gap-4">
+                    ${NumInput('Años', yName, 1, 99, 'flex-1')}
+                    ${NumInput('Meses', mName, 1, 11, 'flex-1')}
+                </div>
+            </div>`;
+
+        const Checkbox = (label, name) => `
+            <div class="flex items-center mt-4 mb-2 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                <input type="checkbox" name="${name}" ${state[name] ? 'checked' : ''} 
+                    class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
+                    onchange="handleCheck(this)">
+                <label class="ml-2 text-sm text-gray-800">${label}</label>
+            </div>`;
+
+        // Render Functions
+        function renderSection1() {
+            return `
+                <div class="max-w-2xl mx-auto">
+                    ${SectionTitle('1. Antigüedad', 'score-s1')}
+                    ${InfoBox('Introduce la antigüedad en años y meses completos. El sistema calculará las fracciones automáticamente.')}
+                    
+                    ${SubTitle('1.1 Antigüedad en el centro', 'score-s11')}
+                    ${YMInput('1.1.1 Permanencia ininterrumpida (Destino Definitivo)', 's1_1_1_years', 's1_1_1_months')}
+                    ${YMInput('1.1.2 Situación de provisionalidad', 's1_1_2_years', 's1_1_2_months')}
+                    ${YMInput('1.1.3 Especial dificultad (Se suma a lo anterior)', 's1_1_3_years', 's1_1_3_months')}
+
+                    ${SubTitle('1.2 Antigüedad en el Cuerpo', 'score-s12')}
+                    ${YMInput('1.2.1 Servicio activo en el cuerpo', 's1_2_1_years', 's1_2_1_months')}
+                    ${YMInput('1.2.2 Otros cuerpos (mismo subgrupo)', 's1_2_2_years', 's1_2_2_months')}
+                    ${YMInput('1.2.3 Otros cuerpos (subgrupo inferior)', 's1_2_3_years', 's1_2_3_months')}
+                </div>`;
+        }
+
+        function renderSection2() {
+            return `
+                <div class="max-w-2xl mx-auto">
+                    ${SectionTitle('2. Cuerpos de Catedráticos', 'score-s2')}
+                    ${InfoBox('Pertenencia a los Cuerpos de Catedráticos de Enseñanza Secundaria, Música y Artes Escénicas, etc.')}
+                    ${Checkbox('Soy funcionario de carrera del Cuerpo de Catedráticos', 's2_catedratico')}
+                </div>`;
+        }
+
+        function renderSection3() {
+            return `
+                <div class="max-w-2xl mx-auto">
+                    ${SectionTitle('3. Méritos Académicos (Máx 10)', 'score-s3')}
+                    ${InfoBox('<strong>Importante:</strong> No se puede valorar el título alegado para el ingreso en el cuerpo. Por ejemplo, si accediste con el Grado, ese Grado no cuenta puntos aquí.')}
+
+                    ${SubTitle('3.1 Doctorado y Postgrados', 'score-s31', 'Títulos de doctor, máster oficial, etc. El máster de secundaria (antiguo CAP) no puntúa si fue requisito de acceso.')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
+                        ${Checkbox('3.1.1 Título de Doctor (6 pts)', 's3_1_1_doctor')}
+                        ${NumInput('3.1.2 Másteres Universitarios Oficiales (3 pts c/u)', 's3_1_2_masters')}
+                        ${Checkbox('3.1.3 Suficiencia investigadora / DEA (2 pts)', 's3_1_3_dea')}
+                        ${Checkbox('3.1.4 Premio extraordinario de doctorado (1 pt)', 's3_1_4_premio_doctor')}
+                    </div>
+
+                    ${SubTitle('3.2 Titulaciones de Nivel Superior', 'score-s32', 'Otras titulaciones universitarias distintas a la de ingreso.')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
+                        ${NumInput('3.2.1 Grados Universitarios adicionales (5 pts)', 's3_2_1_grados')}
+                        ${NumInput('3.2.2 Diplomaturas / Primer ciclo (3 pts)', 's3_2_2_primer_ciclo')}
+                        ${NumInput('3.2.3 Licenciaturas / Segundo ciclo (3 pts)', 's3_2_3_segundo_ciclo')}
+                    </div>
+
+                    ${SubTitle('3.3 Idiomas y Enseñanzas Artísticas', 'score-s33')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Certificados Escuelas Oficiales de Idiomas (EOI)
+                            <div class="tooltip-container">${Icons.help}<span class="tooltip-text">Solo se valora el certificado de nivel más alto aportado por idioma.</span></div>
+                        </label>
+                        <select name="s3_3_idiomas_nivel" onchange="handleInput(this)" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary bg-white mb-4">
+                            <option value="none" ${state.s3_3_idiomas_nivel === 'none' ? 'selected' : ''}>Seleccionar nivel...</option>
+                            <option value="C2" ${state.s3_3_idiomas_nivel === 'C2' ? 'selected' : ''}>Nivel C2 (4 pts)</option>
+                            <option value="C1" ${state.s3_3_idiomas_nivel === 'C1' ? 'selected' : ''}>Nivel C1 (3 pts)</option>
+                            <option value="B2" ${state.s3_3_idiomas_nivel === 'B2' ? 'selected' : ''}>Nivel B2 (2 pts)</option>
+                            <option value="B1" ${state.s3_3_idiomas_nivel === 'B1' ? 'selected' : ''}>Nivel B1 (1 pt)</option>
+                        </select>
+                        <div class="border-t pt-4">
+                            ${NumInput('Títulos Profesional Música/Danza/Artes (2 pts)', 's3_3_titulos_arte')}
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function renderSection4() {
+            return `
+                <div class="max-w-2xl mx-auto">
+                    ${SectionTitle('4. Cargos Directivos (Máx 30)', 'score-s4')}
+                    ${InfoBox('<strong>Nota:</strong> No se pueden acumular puntos por el desempeño simultáneo de varios cargos. En caso de coincidencia, se valorará el más ventajoso.')}
+
+                    ${SubTitle('4.1 Dirección', 'score-s41', 'Director/a de centros públicos.')}
+                    ${YMInput('Director/a de centros públicos', 's4_1_director_years', 's4_1_director_months')}
+
+                    ${SubTitle('4.2 Vicedirección, Jefatura, Secretaría', 'score-s42', 'Vicedirección, subdirección, jefatura de estudios, secretaría y asimilados.')}
+                    ${YMInput('Cargos directivos (Vicedir, Jefatura, Secr.)', 's4_2_vicedir_years', 's4_2_vicedir_months')}
+
+                    ${SubTitle('4.3 Coordinación y otras funciones (Máx 10)', 'score-s43', 'Coordinaciones de ciclo, jefaturas de departamento, tutorías, etc.')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4">
+                        ${YMInput('Coordinaciones genéricas / Equipos orientación', 's4_3_coord_years', 's4_3_coord_months')}
+                        <div class="border-t pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            ${NumInput('Años Jefatura Departamento (1.5 pts/año)', 's4_3_jefe_dept_years', 0.1)}
+                            ${NumInput('Años Tutoría (0.3 pts/año)', 's4_3_tutor_years', 0.1)}
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function renderSection5() {
+            return `
+                <div class="max-w-2xl mx-auto">
+                    ${SectionTitle('5. Formación (Máx 15)', 'score-s5')}
+                    
+                    ${SubTitle('5.1 Formación superada (Máx 9)', 'score-s51')}
+                    ${InfoBox('Se puntúan 0,1 puntos por cada 10 horas de formación acreditada.')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        ${NumInput('Total de horas de cursos recibidos', 's5_1_horas', 10)}
+                    </div>
+
+                    ${SubTitle('5.2 Impartición de formación (Máx 3)', 'score-s52')}
+                    ${InfoBox('Se puntúan 0,1 puntos por cada 3 horas de formación impartida.')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        ${NumInput('Total de horas impartidas', 's5_2_horas', 3)}
+                    </div>
+
+                    ${SubTitle('5.3 Nuevas Especialidades', 'score-s53')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        ${NumInput('Nº de nuevas especialidades adquiridas (1 pt)', 's5_3_especialidades')}
+                    </div>
+
+                    ${SubTitle('5.4 Competencia Digital (Máx 3)', 'score-s54')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nivel acreditado</label>
+                        <select name="s5_4_competencia_digital" onchange="handleInput(this)" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary bg-white">
+                            <option value="none" ${state.s5_4_competencia_digital === 'none' ? 'selected' : ''}>Seleccionar...</option>
+                            <option value="A1" ${state.s5_4_competencia_digital === 'A1' ? 'selected' : ''}>A1 (0.5 pts)</option>
+                            <option value="A2" ${state.s5_4_competencia_digital === 'A2' ? 'selected' : ''}>A2 (1.0 pts)</option>
+                            <option value="B1" ${state.s5_4_competencia_digital === 'B1' ? 'selected' : ''}>B1 (1.5 pts)</option>
+                            <option value="B2" ${state.s5_4_competencia_digital === 'B2' ? 'selected' : ''}>B2 (2.0 pts)</option>
+                            <option value="C1" ${state.s5_4_competencia_digital === 'C1' ? 'selected' : ''}>C1 (2.5 pts)</option>
+                            <option value="C2" ${state.s5_4_competencia_digital === 'C2' ? 'selected' : ''}>C2 (3.0 pts)</option>
+                        </select>
+                    </div>
+                </div>`;
+        }
+
+        function renderSection6() {
+            // Helper for the 6.2 grid
+            const GridInput = (name, pts) => `
+                <div class="flex flex-col items-center">
+                    ${NumInput('', name, 1, 99, 'w-full mb-0')}
+                    <span class="text-[10px] text-gray-400 mt-1">${pts} pts</span>
+                </div>`;
+
+            return `
+                <div class="max-w-2xl mx-auto">
+                    ${SectionTitle('6. Otros Méritos (Máx 15)', 'score-s6')}
+
+                    ${SubTitle('6.1 Publicaciones (Máx 8)', 'score-s61', 'Libros con ISBN, revistas con ISSN. Se valora distinta puntuación si es autoría única o compartida.')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
+                        ${NumInput('Libros (Autor único) (1 pt)', 's6_1_libros_autor')}
+                        ${NumInput('Libros (Coautor) (0.5 pts)', 's6_1_libros_coautor')}
+                        ${NumInput('Revistas / Artículos (aprox 0.2 pts)', 's6_1_revistas')}
+                    </div>
+
+                    ${SubTitle('6.2 Premios y Proyectos (Máx 2.5)', 'score-s62')}
+                    ${InfoBox('Premios de ámbito autonómico, nacional o internacional y participación en proyectos de investigación/innovación.')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-6">
+                        <div>
+                            <h4 class="text-sm font-bold text-secondary mb-2 uppercase tracking-wide flex items-center">
+                                Premios <div class="tooltip-container">${Icons.help}<span class="tooltip-text">Premios convocados por Administraciones Educativas.</span></div>
+                            </h4>
+                            <div class="grid grid-cols-4 gap-2 text-xs font-bold text-gray-500 border-b pb-2 mb-2 text-center bg-gray-50 rounded-t py-2">
+                                <div class="text-left pl-2">Ámbito</div>
+                                <div>1º Premio</div>
+                                <div>2º Premio</div>
+                                <div>3º Premio</div>
+                            </div>
+                            <div class="grid grid-cols-4 gap-2 items-center mb-2 border-b border-gray-50 pb-2">
+                                <div class="text-sm font-medium text-gray-700 pl-2">Internac.</div>
+                                ${GridInput('s6_2_intl_1', '1.5')}
+                                ${GridInput('s6_2_intl_2', '0.75')}
+                                ${GridInput('s6_2_intl_3', '0.5')}
+                            </div>
+                            <div class="grid grid-cols-4 gap-2 items-center mb-2 border-b border-gray-50 pb-2">
+                                <div class="text-sm font-medium text-gray-700 pl-2">Nacional</div>
+                                ${GridInput('s6_2_nat_1', '1.0')}
+                                ${GridInput('s6_2_nat_2', '0.5')}
+                                ${GridInput('s6_2_nat_3', '0.25')}
+                            </div>
+                            <div class="grid grid-cols-4 gap-2 items-center">
+                                <div class="text-sm font-medium text-gray-700 pl-2">Autonóm.</div>
+                                ${GridInput('s6_2_auto_1', '0.5')}
+                                ${GridInput('s6_2_auto_2', '0.25')}
+                                ${GridInput('s6_2_auto_3', '0.1')}
+                            </div>
+                        </div>
+                        
+                        <div class="border-t pt-4">
+                            <h4 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wide">Proyectos de Investigación / Innovación</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                ${NumInput('Cursos coordinando proyectos (0.5 pts)', 's6_2_coord_proyectos_years')}
+                                ${NumInput('Cursos participando en proyectos (0.2 pts)', 's6_2_part_proyectos_years')}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${SubTitle('6.3 Méritos Artísticos (Máx 2.5)', 'score-s63', 'Exposiciones, conciertos, premios artísticos, etc.')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        ${NumInput('Méritos artísticos (Exposiciones/Conciertos - 0.5 pts)', 's6_3_meritos_artisticos')}
+                    </div>
+
+                    ${SubTitle('6.4 Puestos Administración', 'score-s64', 'Servicios especiales, puestos en la administración educativa, etc.')}
+                    ${YMInput('Tiempo en puestos de administración', 's6_4_puestos_admin_years', 's6_4_puestos_admin_months')}
+
+                    ${SubTitle('6.5 Tribunales', 'score-s65')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        ${NumInput('Tribunales de oposición (0.5 pts)', 's6_5_tribunales')}
+                    </div>
+
+                    ${SubTitle('6.6 Tutorización Máster', 'score-s66')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        ${NumInput('Tutorización máster/prácticas (0.1 pts)', 's6_6_tutor_master')}
+                    </div>
+                </div>`;
+        }
+
+        function renderSummary() {
+            const s1 = Calculators.section1(state).toFixed(4);
+            const s2 = Calculators.section2(state).toFixed(4);
+            const s3 = Calculators.section3(state).toFixed(4);
+            const s4 = Calculators.section4(state).toFixed(4);
+            const s5 = Calculators.section5(state).toFixed(4);
+            const s6 = Calculators.section6(state).toFixed(4);
+            const total = Calculators.total(state).toFixed(4);
+
+            const Row = (label, value, max) => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="py-3 px-2 text-gray-800 font-medium">${label}</td>
+                    <td class="py-3 text-right font-mono text-gray-700">${value}</td>
+                    <td class="py-3 text-right text-xs text-gray-400 font-mono">${max}</td>
+                </tr>`;
+
+            return `
+                <div class="max-w-3xl mx-auto">
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                        <div class="bg-primary p-6 text-white flex justify-between items-center">
+                            <div>
+                                <h2 class="text-2xl font-bold">Resumen de Baremación</h2>
+                                <p class="text-green-100">Concurso de Traslados 2025</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm opacity-80">Puntuación Total</p>
+                                <p class="text-4xl font-bold">${total}</p>
+                            </div>
+                        </div>
+
+                        <div class="p-6">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-gray-200 text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                                        <th class="py-3">Apartado</th>
+                                        <th class="py-3 text-right">Puntos</th>
+                                        <th class="py-3 text-right text-xs text-gray-400">Máximo</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    ${Row('1. Antigüedad', s1, 'Sin límite')}
+                                    ${Row('2. Cuerpos de Catedráticos', s2, '5.0000')}
+                                    ${Row('3. Méritos Académicos', s3, '10.0000')}
+                                    ${Row('4. Cargos Directivos', s4, '30.0000')}
+                                    ${Row('5. Formación y perfeccionamiento', s5, '15.0000')}
+                                    ${Row('6. Otros méritos', s6, '15.0000')}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-gray-50">
+                                        <td class="py-4 px-2 font-bold text-gray-800">TOTAL ESTIMADO</td>
+                                        <td class="py-4 text-right font-bold text-primary text-xl">${total}</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <div class="mt-8 flex justify-center no-print">
+                                <button onclick="window.print()" class="bg-secondary hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-lg shadow transition flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                    Imprimir / Guardar PDF
+                                </button>
+                            </div>
+                            <div class="mt-8 text-xs text-gray-400 text-center print-only">
+                                Calculado el ${new Date().toLocaleDateString()} mediante Calculadora Concurso de Traslado 2025.
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        // --- CORE FUNCTIONS ---
+
+        function closeLanding() {
+            document.getElementById('landing-page').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('opacity-0');
+        }
+
+        function switchTab(id) {
+            activeTabId = id;
+            renderNavigation();
+            renderMainContent();
+            updateCalculations(); // Ensure DOM values are current
+        }
+
+        function handleInput(element) {
+            const name = element.name;
+            const value = element.type === 'number' ? parseFloat(element.value) || 0 : element.value;
+            state[name] = value;
+            updateCalculations();
+        }
+
+        function handleCheck(element) {
+            state[element.name] = element.checked;
+            updateCalculations();
+        }
+
+        // Only updates the text content of scores, doesn't re-render inputs to maintain focus
+        function updateCalculations() {
+            // Header Total
+            document.getElementById('header-total-score').textContent = Calculators.total(state).toFixed(4);
+
+            // Update specific section scores if they exist in the DOM
+            if (activeTabId === 1) {
+                updateText('score-s1', Calculators.section1(state));
+                updateText('score-s11', Calculators.calc11(state));
+                updateText('score-s12', Calculators.calc12(state));
+            } else if (activeTabId === 2) {
+                updateText('score-s2', Calculators.section2(state));
+            } else if (activeTabId === 3) {
+                updateText('score-s3', Calculators.section3(state));
+                updateText('score-s31', Calculators.calc31(state));
+                updateText('score-s32', Calculators.calc32(state));
+                updateText('score-s33', Calculators.calc33(state));
+            } else if (activeTabId === 4) {
+                updateText('score-s4', Calculators.section4(state));
+                updateText('score-s41', Calculators.calc41(state));
+                updateText('score-s42', Calculators.calc42(state));
+                updateText('score-s43', Calculators.calc43(state));
+            } else if (activeTabId === 5) {
+                updateText('score-s5', Calculators.section5(state));
+                updateText('score-s51', Calculators.calc51(state));
+                updateText('score-s52', Calculators.calc52(state));
+                updateText('score-s53', Calculators.calc53(state));
+                updateText('score-s54', Calculators.calc54(state));
+            } else if (activeTabId === 6) {
+                updateText('score-s6', Calculators.section6(state));
+                updateText('score-s61', Calculators.calc61(state));
+                updateText('score-s62', Calculators.calc62(state));
+                updateText('score-s63', Calculators.calc63(state));
+                updateText('score-s64', Calculators.calc64(state));
+                updateText('score-s65', Calculators.calc65(state));
+                updateText('score-s66', Calculators.calc66(state));
+            }
+        }
+
+        function updateText(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val.toFixed(4) + ' pts';
+        }
+
+        function renderNavigation() {
+            const navHTML = Tabs.map(tab => `
+                <button onclick="switchTab(${tab.id})" 
+                    class="py-3 px-4 text-sm font-medium whitespace-nowrap transition-colors duration-200 border-b-2 focus:outline-none ${activeTabId === tab.id ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}">
+                    ${tab.label}
+                </button>
+            `).join('');
+            document.getElementById('tabs-container').innerHTML = navHTML;
+        }
+
+        function renderMainContent() {
+            const container = document.getElementById('main-content');
+            switch(activeTabId) {
+                case 1: container.innerHTML = renderSection1(); break;
+                case 2: container.innerHTML = renderSection2(); break;
+                case 3: container.innerHTML = renderSection3(); break;
+                case 4: container.innerHTML = renderSection4(); break;
+                case 5: container.innerHTML = renderSection5(); break;
+                case 6: container.innerHTML = renderSection6(); break;
+                case 7: container.innerHTML = renderSummary(); break;
+            }
+        }
+
+        // Initialize
+        renderNavigation();
+        renderMainContent();
+        updateCalculations();
+
+    </script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
