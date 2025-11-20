@@ -79,9 +79,9 @@
 <script type="importmap">
 {
   "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0"
   }
 }
 </script>
@@ -120,7 +120,7 @@
                       <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                     </span>
                     <p class="text-xs text-gray-500 font-medium">
-                        Visitas: <span id="visit-count" class="font-mono font-bold text-primary">Cargando...</span>
+                        Visitas: <span id="visit-count" class="font-mono font-bold text-primary">...</span>
                     </p>
                 </div>
             </div>
@@ -191,13 +191,12 @@
             s3_3_idiomas_c1: 0,
             s3_3_idiomas_b2: 0,
             s3_3_idiomas_b1: 0,
-            s3_3_titulos_arte: 0,
+            s3_3_titulo_arte: 0,   // Artes Plásticas
+            s3_3_titulo_musica: 0, // Música o Danza
             // 4. Cargos
             s4_1_director_years: 0, s4_1_director_months: 0,
             s4_2_vicedir_years: 0, s4_2_vicedir_months: 0,
-            s4_3_coord_years: 0, s4_3_coord_months: 0,
-            s4_3_jefe_dept_years: 0,
-            s4_3_tutor_years: 0,
+            s4_3_coord_years: 0, s4_3_coord_months: 0, // Unified 4.3 input
             // 5. Formación
             s5_1_horas: 0,
             s5_2_horas: 0,
@@ -206,16 +205,26 @@
             // 6. Otros
             s6_1_libros_autor: 0,
             s6_1_libros_coautor: 0,
-            s6_1_revistas: 0,
+            s6_1_libros_3autores: 0,
+            s6_1_libros_4autores: 0,
+            s6_1_libros_5autores: 0,
+            s6_1_libros_mas5autores: 0,
+            s6_1_revistas_autor: 0,
+            s6_1_revistas_coautor: 0,
+            s6_1_revistas_3mas: 0,
+            // 6.2
             s6_2_intl_1: 0, s6_2_intl_2: 0, s6_2_intl_3: 0,
             s6_2_nat_1: 0, s6_2_nat_2: 0, s6_2_nat_3: 0,
             s6_2_auto_1: 0, s6_2_auto_2: 0, s6_2_auto_3: 0,
             s6_2_coord_proyectos_years: 0,
             s6_2_part_proyectos_years: 0,
+            // 6.3
             s6_3_meritos_artisticos: 0,
+            // 6.4-6.6
             s6_4_puestos_admin_years: 0, s6_4_puestos_admin_months: 0,
             s6_5_tribunales: 0,
-            s6_6_tutor_master: 0
+            s6_6_tutor_master: 0,
+            s6_6_tutor_practicas: 0
         };
 
         let state = { ...INITIAL_STATE };
@@ -263,7 +272,8 @@
                 pts += s.s3_3_idiomas_c1 * 3.0;
                 pts += s.s3_3_idiomas_b2 * 2.0;
                 pts += s.s3_3_idiomas_b1 * 1.0;
-                pts += s.s3_3_titulos_arte * 2.0;
+                pts += s.s3_3_titulo_arte * 2.0;
+                pts += s.s3_3_titulo_musica * 2.0;
                 return pts;
             },
             section3: (s) => Math.min(Calculators.calc31(s) + Calculators.calc32(s) + Calculators.calc33(s), 10.0),
@@ -272,10 +282,8 @@
             calc41: (s) => calcTime(s.s4_1_director_years, s.s4_1_director_months, 4.5, 0.3750),
             calc42: (s) => calcTime(s.s4_2_vicedir_years, s.s4_2_vicedir_months, 3.0, 0.2500),
             calc43: (s) => {
-                const c = calcTime(s.s4_3_coord_years, s.s4_3_coord_months, 1.0, 0.0833);
-                const j = s.s4_3_jefe_dept_years * 1.5;
-                const t = s.s4_3_tutor_years * 0.3;
-                return Math.min(c + j + t, 10.0);
+                // All items in 4.3 (Coord, Jefe Dept, Tutor) are generally 1.5 pts/year in current Andalusia Baremo
+                return Math.min(calcTime(s.s4_3_coord_years, s.s4_3_coord_months, 1.5, 0.1250), 10.0);
             },
             section4: (s) => Math.min(Calculators.calc41(s) + Calculators.calc42(s) + Calculators.calc43(s), 30.0),
 
@@ -290,7 +298,21 @@
             section5: (s) => Math.min(Calculators.calc51(s) + Calculators.calc52(s) + Calculators.calc53(s) + Calculators.calc54(s), 15.0),
 
             // Sec 6
-            calc61: (s) => Math.min((s.s6_1_libros_autor * 1.0) + (s.s6_1_libros_coautor * 0.5) + (s.s6_1_revistas * 0.2), 8.0),
+            calc61: (s) => {
+                let pts = 0;
+                // Books
+                pts += s.s6_1_libros_autor * 1.0;
+                pts += s.s6_1_libros_coautor * 0.5;
+                pts += s.s6_1_libros_3autores * 0.4;
+                pts += s.s6_1_libros_4autores * 0.3;
+                pts += s.s6_1_libros_5autores * 0.2;
+                pts += s.s6_1_libros_mas5autores * 0.1;
+                // Magazines
+                pts += s.s6_1_revistas_autor * 0.2;
+                pts += s.s6_1_revistas_coautor * 0.1;
+                pts += s.s6_1_revistas_3mas * 0.05;
+                return Math.min(pts, 8.0);
+            },
             calc62: (s) => {
                 let pts = (s.s6_2_intl_1 * 1.5) + (s.s6_2_intl_2 * 0.75) + (s.s6_2_intl_3 * 0.5) +
                           (s.s6_2_nat_1 * 1.0) + (s.s6_2_nat_2 * 0.5) + (s.s6_2_nat_3 * 0.25) +
@@ -301,7 +323,7 @@
             calc63: (s) => Math.min(s.s6_3_meritos_artisticos * 0.5, 2.5),
             calc64: (s) => calcTime(s.s6_4_puestos_admin_years, s.s6_4_puestos_admin_months, 1.5, 0.125),
             calc65: (s) => s.s6_5_tribunales * 0.5,
-            calc66: (s) => s.s6_6_tutor_master * 0.1,
+            calc66: (s) => (s.s6_6_tutor_master * 0.1) + (s.s6_6_tutor_practicas * 0.3),
             section6: (s) => Math.min(Calculators.calc61(s) + Calculators.calc62(s) + Calculators.calc63(s) + Calculators.calc64(s) + Calculators.calc65(s) + Calculators.calc66(s), 15.0),
             
             total: (s) => Calculators.section1(s) + Calculators.section2(s) + Calculators.section3(s) + Calculators.section4(s) + Calculators.section5(s) + Calculators.section6(s)
@@ -346,6 +368,15 @@
                 <input type="number" name="${name}" min="0" max="${max}" step="${step}" value="${state[name]}" 
                     class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition bg-white" 
                     oninput="handleInput(this)">
+            </div>`;
+            
+        const GridInput = (label, name, pts) => `
+            <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                <div class="text-xs text-gray-600 font-medium mb-1 h-8 flex items-end">${label}</div>
+                <div class="flex items-center gap-2">
+                    <input type="number" name="${name}" min="0" value="${state[name]}" class="w-full p-1.5 text-sm border rounded outline-none focus:ring-1 focus:ring-primary" oninput="handleInput(this)">
+                    <span class="text-xs text-primary font-bold whitespace-nowrap">${pts} pt</span>
+                </div>
             </div>`;
 
         const YMInput = (label, yName, mName) => `
@@ -399,7 +430,7 @@
                     ${SectionTitle('3. Méritos Académicos (Máx 10)', 'score-s3')}
                     ${InfoBox('<strong>Importante:</strong> No se puede valorar el título alegado para el ingreso en el cuerpo. Por ejemplo, si accediste con el Grado, ese Grado no cuenta puntos aquí.')}
 
-                    ${SubTitle('3.1 Doctorado y Postgrados', 'score-s31', 'Títulos de doctor, máster oficial, etc. El máster de secundaria (antiguo CAP) no puntúa si fue requisito de acceso.')}
+                    ${SubTitle('3.1 Doctorado, postgrados y premios extraordinarios', 'score-s31', 'Títulos de doctor, máster oficial, etc. El máster de secundaria (antiguo CAP) no puntúa si fue requisito de acceso.')}
                     <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
                         ${Checkbox('3.1.1 Título de Doctor (6 pts)', 's3_1_1_doctor')}
                         ${NumInput('3.1.2 Másteres Universitarios Oficiales (3 pts c/u)', 's3_1_2_masters')}
@@ -429,8 +460,9 @@
                             </div>
                         </div>
 
-                        <div class="border-t pt-4">
-                            ${NumInput('Títulos Profesional Música/Danza/Artes (2 pts)', 's3_3_titulos_arte')}
+                        <div class="border-t pt-4 space-y-3">
+                            ${NumInput('Títulos Profesional Música/Danza (2 pts)', 's3_3_titulo_musica')}
+                            ${NumInput('Título Técnico Superior Artes Plásticas/Diseño (2 pts)', 's3_3_titulo_arte')}
                         </div>
                     </div>
                 </div>`;
@@ -445,16 +477,12 @@
                     ${SubTitle('4.1 Dirección', 'score-s41', 'Director/a de centros públicos.')}
                     ${YMInput('Director/a de centros públicos', 's4_1_director_years', 's4_1_director_months')}
 
-                    ${SubTitle('4.2 Vicedirección, Jefatura, Secretaría', 'score-s42', 'Vicedirección, subdirección, jefatura de estudios, secretaría y asimilados.')}
+                    ${SubTitle('4.2 Vicedirección, Jefatura, Secretaría...', 'score-s42', 'Vicedirección, Subdirección, Secretaría, Jefatura de Estudios, Jefatura de Estudios Adjunta.')}
                     ${YMInput('Cargos directivos (Vicedir, Jefatura, Secr.)', 's4_2_vicedir_years', 's4_2_vicedir_months')}
 
-                    ${SubTitle('4.3 Coordinación y otras funciones (Máx 10)', 'score-s43', 'Coordinaciones de ciclo, jefaturas de departamento, tutorías, etc.')}
+                    ${SubTitle('4.3 Coordinación y otras funciones (Máx 10)', 'score-s43', 'Coordinaciones, jefaturas de departamento, tutorías, etc. Valorados a 1.5 puntos por año.')}
                     <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4">
-                        ${YMInput('Coordinaciones genéricas / Equipos orientación', 's4_3_coord_years', 's4_3_coord_months')}
-                        <div class="border-t pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            ${NumInput('Años Jefatura Departamento (1.5 pts/año)', 's4_3_jefe_dept_years', 0.1)}
-                            ${NumInput('Años Tutoría (0.3 pts/año)', 's4_3_tutor_years', 0.1)}
-                        </div>
+                        ${YMInput('Cargos de coordinación docente y función tutorial', 's4_3_coord_years', 's4_3_coord_months')}
                     </div>
                 </div>`;
         }
@@ -499,7 +527,7 @@
 
         function renderSection6() {
             // Helper for the 6.2 grid
-            const GridInput = (name, pts) => `
+            const GridInputSmall = (name, pts) => `
                 <div class="flex flex-col items-center">
                     ${NumInput('', name, 1, 99, 'w-full mb-0')}
                     <span class="text-[10px] text-gray-400 mt-1">${pts} pts</span>
@@ -510,14 +538,27 @@
                     ${SectionTitle('6. Otros Méritos (Máx 15)', 'score-s6')}
 
                     ${SubTitle('6.1 Publicaciones (Máx 8)', 'score-s61', 'Libros con ISBN, revistas con ISSN. Se valora distinta puntuación si es autoría única o compartida.')}
-                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
-                        ${NumInput('Libros (Autor único) (1 pt)', 's6_1_libros_autor')}
-                        ${NumInput('Libros (Coautor) (0.5 pts)', 's6_1_libros_coautor')}
-                        ${NumInput('Revistas / Artículos (aprox 0.2 pts)', 's6_1_revistas')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4">
+                        <h4 class="text-sm font-bold text-secondary uppercase tracking-wide border-b pb-1">Libros</h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            ${GridInput('Autor único', 's6_1_libros_autor', 1.0)}
+                            ${GridInput('Coautor', 's6_1_libros_coautor', 0.5)}
+                            ${GridInput('3 autores', 's6_1_libros_3autores', 0.4)}
+                            ${GridInput('4 autores', 's6_1_libros_4autores', 0.3)}
+                            ${GridInput('5 autores', 's6_1_libros_5autores', 0.2)}
+                            ${GridInput('Más de 5', 's6_1_libros_mas5autores', 0.1)}
+                        </div>
+                        
+                        <h4 class="text-sm font-bold text-secondary uppercase tracking-wide border-b pb-1 pt-2">Revistas</h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            ${GridInput('Autor único', 's6_1_revistas_autor', 0.2)}
+                            ${GridInput('Coautor', 's6_1_revistas_coautor', 0.1)}
+                            ${GridInput('3 o más autores', 's6_1_revistas_3mas', 0.05)}
+                        </div>
                     </div>
 
                     ${SubTitle('6.2 Premios y Proyectos (Máx 2.5)', 'score-s62')}
-                    ${InfoBox('Premios de ámbito autonómico, nacional o internacional y participación en proyectos de investigación/innovación.')}
+                    ${InfoBox('Premios de ámbito autonómico, nacional o internacional y participación en planes y proyectos educativos de investigación/innovación.')}
                     <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-6">
                         <div>
                             <h4 class="text-sm font-bold text-secondary mb-2 uppercase tracking-wide flex items-center">
@@ -531,21 +572,21 @@
                             </div>
                             <div class="grid grid-cols-4 gap-2 items-center mb-2 border-b border-gray-50 pb-2">
                                 <div class="text-sm font-medium text-gray-700 pl-2">Internac.</div>
-                                ${GridInput('s6_2_intl_1', '1.5')}
-                                ${GridInput('s6_2_intl_2', '0.75')}
-                                ${GridInput('s6_2_intl_3', '0.5')}
+                                ${GridInputSmall('s6_2_intl_1', '1.5')}
+                                ${GridInputSmall('s6_2_intl_2', '0.75')}
+                                ${GridInputSmall('s6_2_intl_3', '0.5')}
                             </div>
                             <div class="grid grid-cols-4 gap-2 items-center mb-2 border-b border-gray-50 pb-2">
                                 <div class="text-sm font-medium text-gray-700 pl-2">Nacional</div>
-                                ${GridInput('s6_2_nat_1', '1.0')}
-                                ${GridInput('s6_2_nat_2', '0.5')}
-                                ${GridInput('s6_2_nat_3', '0.25')}
+                                ${GridInputSmall('s6_2_nat_1', '1.0')}
+                                ${GridInputSmall('s6_2_nat_2', '0.5')}
+                                ${GridInputSmall('s6_2_nat_3', '0.25')}
                             </div>
                             <div class="grid grid-cols-4 gap-2 items-center">
                                 <div class="text-sm font-medium text-gray-700 pl-2">Autonóm.</div>
-                                ${GridInput('s6_2_auto_1', '0.5')}
-                                ${GridInput('s6_2_auto_2', '0.25')}
-                                ${GridInput('s6_2_auto_3', '0.1')}
+                                ${GridInputSmall('s6_2_auto_1', '0.5')}
+                                ${GridInputSmall('s6_2_auto_2', '0.25')}
+                                ${GridInputSmall('s6_2_auto_3', '0.1')}
                             </div>
                         </div>
                         
@@ -558,7 +599,7 @@
                         </div>
                     </div>
 
-                    ${SubTitle('6.3 Méritos Artísticos (Máx 2.5)', 'score-s63', 'Exposiciones, conciertos, premios artísticos, etc.')}
+                    ${SubTitle('6.3 Méritos Artísticos y Deportivos (Máx 2.5)', 'score-s63', 'Exposiciones, conciertos, premios artísticos, etc.')}
                     <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
                         ${NumInput('Méritos artísticos (Exposiciones/Conciertos - 0.5 pts)', 's6_3_meritos_artisticos')}
                     </div>
@@ -571,9 +612,10 @@
                         ${NumInput('Tribunales de oposición (0.5 pts)', 's6_5_tribunales')}
                     </div>
 
-                    ${SubTitle('6.6 Tutorización Máster', 'score-s66')}
-                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                        ${NumInput('Tutorización máster/prácticas (0.1 pts)', 's6_6_tutor_master')}
+                    ${SubTitle('6.6 Tutorización', 'score-s66')}
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
+                        ${NumInput('Tutorización máster universitario (0.1 pts)', 's6_6_tutor_master')}
+                        ${NumInput('Tutorización prácticas (funcionarios/directores) (0.3 pts)', 's6_6_tutor_practicas')}
                     </div>
                 </div>`;
         }
@@ -743,17 +785,22 @@
 
         // Visit Counter Logic
         (function initCounter() {
-            const namespace = 'calculadora-traslados-2025-maestrorafa';
+            // Using counterapi.dev which is a free, simple counter service.
+            // We use a specific namespace for this calculator to track visits cumulatively.
+            const namespace = 'maestrorafa-traslados-2025-v2';
             const key = 'visits';
             const el = document.getElementById('visit-count');
             
             if(el) {
-                fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
+                // The 'up' endpoint increments the counter and returns the new value.
+                fetch(`https://api.counterapi.dev/v1/${namespace}/${key}/up`)
                     .then(res => res.json())
-                    .then(data => { el.innerText = data.value; })
+                    .then(data => { 
+                        el.innerText = data.count; 
+                    })
                     .catch(err => { 
                         console.error('Counter error', err);
-                        el.innerText = '1'; 
+                        el.innerText = "---"; 
                     });
             }
         })();
