@@ -91,7 +91,7 @@
 
     <!-- Landing Page Overlay -->
     <div id="landing-page" class="fixed inset-0 z-50 bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
-        <div class="bg-white max-w-lg w-full rounded-2xl shadow-xl p-8 text-center border border-gray-100">
+        <div class="bg-white max-w-lg w-full rounded-2xl shadow-xl p-8 text-center border border-gray-100 relative">
             <div class="mb-6 flex justify-center">
                 <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white shadow-lg">
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
@@ -108,9 +108,22 @@
                 <p class="mt-2">El autor <strong>no se hace responsable</strong> de posibles errores en los cálculos ni de las decisiones que se tomen basándose en los resultados obtenidos aquí. Para el cálculo definitivo y vinculante, debe consultarse siempre la normativa oficial vigente publicada en el BOJA.</p>
             </div>
 
-            <button onclick="closeLanding()" class="w-full bg-primary hover:bg-[#00623b] text-white font-bold py-3 px-6 rounded-xl shadow-md transform transition hover:scale-[1.02] active:scale-[0.98]">
+            <button onclick="closeLanding()" class="w-full bg-primary hover:bg-[#00623b] text-white font-bold py-3 px-6 rounded-xl shadow-md transform transition hover:scale-[1.02] active:scale-[0.98] mb-6">
                 Entendido, acceder a la calculadora
             </button>
+
+            <!-- Visit Counter -->
+            <div class="flex justify-center">
+                <div class="bg-gray-50 border border-gray-100 rounded-full px-4 py-1 flex items-center gap-2 shadow-sm">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    <p class="text-xs text-gray-500 font-medium">
+                        Visitas: <span id="visit-count" class="font-mono font-bold text-primary">Cargando...</span>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -173,7 +186,11 @@
             s3_2_1_grados: 0,
             s3_2_2_primer_ciclo: 0,
             s3_2_3_segundo_ciclo: 0,
-            s3_3_idiomas_nivel: 'none',
+            // 3.3 Idiomas (Individual inputs)
+            s3_3_idiomas_c2: 0,
+            s3_3_idiomas_c1: 0,
+            s3_3_idiomas_b2: 0,
+            s3_3_idiomas_b1: 0,
             s3_3_titulos_arte: 0,
             // 4. Cargos
             s4_1_director_years: 0, s4_1_director_months: 0,
@@ -242,12 +259,10 @@
             calc32: (s) => (s.s3_2_1_grados * 5.0) + (s.s3_2_2_primer_ciclo * 3.0) + (s.s3_2_3_segundo_ciclo * 3.0),
             calc33: (s) => {
                 let pts = 0;
-                switch(s.s3_3_idiomas_nivel) {
-                    case 'C2': pts += 4; break;
-                    case 'C1': pts += 3; break;
-                    case 'B2': pts += 2; break;
-                    case 'B1': pts += 1; break;
-                }
+                pts += s.s3_3_idiomas_c2 * 4.0;
+                pts += s.s3_3_idiomas_c1 * 3.0;
+                pts += s.s3_3_idiomas_b2 * 2.0;
+                pts += s.s3_3_idiomas_b1 * 1.0;
                 pts += s.s3_3_titulos_arte * 2.0;
                 return pts;
             },
@@ -401,17 +416,19 @@
 
                     ${SubTitle('3.3 Idiomas y Enseñanzas Artísticas', 'score-s33')}
                     <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Certificados Escuelas Oficiales de Idiomas (EOI)
-                            <div class="tooltip-container">${Icons.help}<span class="tooltip-text">Solo se valora el certificado de nivel más alto aportado por idioma.</span></div>
-                        </label>
-                        <select name="s3_3_idiomas_nivel" onchange="handleInput(this)" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary bg-white mb-4">
-                            <option value="none" ${state.s3_3_idiomas_nivel === 'none' ? 'selected' : ''}>Seleccionar nivel...</option>
-                            <option value="C2" ${state.s3_3_idiomas_nivel === 'C2' ? 'selected' : ''}>Nivel C2 (4 pts)</option>
-                            <option value="C1" ${state.s3_3_idiomas_nivel === 'C1' ? 'selected' : ''}>Nivel C1 (3 pts)</option>
-                            <option value="B2" ${state.s3_3_idiomas_nivel === 'B2' ? 'selected' : ''}>Nivel B2 (2 pts)</option>
-                            <option value="B1" ${state.s3_3_idiomas_nivel === 'B1' ? 'selected' : ''}>Nivel B1 (1 pt)</option>
-                        </select>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Certificados Escuelas Oficiales de Idiomas (EOI)
+                                <div class="tooltip-container">${Icons.help}<span class="tooltip-text">Solo se valora el certificado de nivel más alto aportado por idioma.</span></div>
+                            </label>
+                            <div class="grid grid-cols-2 gap-4">
+                                ${NumInput('Nivel C2 (4 pts)', 's3_3_idiomas_c2')}
+                                ${NumInput('Nivel C1 (3 pts)', 's3_3_idiomas_c1')}
+                                ${NumInput('Nivel B2 (2 pts)', 's3_3_idiomas_b2')}
+                                ${NumInput('Nivel B1 (1 pt)', 's3_3_idiomas_b1')}
+                            </div>
+                        </div>
+
                         <div class="border-t pt-4">
                             ${NumInput('Títulos Profesional Música/Danza/Artes (2 pts)', 's3_3_titulos_arte')}
                         </div>
@@ -723,6 +740,23 @@
                 case 7: container.innerHTML = renderSummary(); break;
             }
         }
+
+        // Visit Counter Logic
+        (function initCounter() {
+            const namespace = 'calculadora-traslados-2025-maestrorafa';
+            const key = 'visits';
+            const el = document.getElementById('visit-count');
+            
+            if(el) {
+                fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
+                    .then(res => res.json())
+                    .then(data => { el.innerText = data.value; })
+                    .catch(err => { 
+                        console.error('Counter error', err);
+                        el.innerText = '1'; 
+                    });
+            }
+        })();
 
         // Initialize
         renderNavigation();
