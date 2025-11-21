@@ -103,7 +103,7 @@
             <p class="text-gray-500 mb-8">Cuerpo de Maestros y Secundaria</p>
 
             <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-left text-sm text-yellow-800 mb-8 rounded-r">
-                <p class="font-bold mb-1">⚠️ Aviso Legal e Importante</p>
+                <p class="font-bold mb-1 text-base uppercase">⚠️ Aviso Importante</p>
                 <p>Esta aplicación es una herramienta de simulación <strong>NO OFICIAL</strong> desarrollada para facilitar el cálculo del baremo.</p>
                 <p class="mt-2">El autor <strong>no se hace responsable</strong> de posibles errores en los cálculos ni de las decisiones que se tomen basándose en los resultados obtenidos aquí. Para el cálculo definitivo y vinculante, debe consultarse siempre la normativa oficial vigente publicada en el BOJA.</p>
             </div>
@@ -186,11 +186,8 @@
             s3_2_1_grados: 0,
             s3_2_2_primer_ciclo: 0,
             s3_2_3_segundo_ciclo: 0,
-            // 3.3 Idiomas (Individual inputs)
-            s3_3_idiomas_c2: 0,
-            s3_3_idiomas_c1: 0,
-            s3_3_idiomas_b2: 0,
-            s3_3_idiomas_b1: 0,
+            // 3.3 Idiomas (Dropdown)
+            s3_3_idiomas_nivel: 'none',
             s3_3_titulo_arte: 0,   // Artes Plásticas
             s3_3_titulo_musica: 0, // Música o Danza
             // 4. Cargos
@@ -268,10 +265,12 @@
             calc32: (s) => (s.s3_2_1_grados * 5.0) + (s.s3_2_2_primer_ciclo * 3.0) + (s.s3_2_3_segundo_ciclo * 3.0),
             calc33: (s) => {
                 let pts = 0;
-                pts += s.s3_3_idiomas_c2 * 4.0;
-                pts += s.s3_3_idiomas_c1 * 3.0;
-                pts += s.s3_3_idiomas_b2 * 2.0;
-                pts += s.s3_3_idiomas_b1 * 1.0;
+                switch (s.s3_3_idiomas_nivel) {
+                    case 'C2': pts += 4.0; break;
+                    case 'C1': pts += 3.0; break;
+                    case 'B2': pts += 2.0; break;
+                    case 'B1': pts += 1.0; break;
+                }
                 pts += s.s3_3_titulo_arte * 2.0;
                 pts += s.s3_3_titulo_musica * 2.0;
                 return pts;
@@ -323,7 +322,7 @@
             calc63: (s) => Math.min(s.s6_3_meritos_artisticos * 0.5, 2.5),
             calc64: (s) => calcTime(s.s6_4_puestos_admin_years, s.s6_4_puestos_admin_months, 1.5, 0.125),
             calc65: (s) => s.s6_5_tribunales * 0.5,
-            calc66: (s) => (s.s6_6_tutor_master * 0.1) + (s.s6_6_tutor_practicas * 0.3),
+            calc66: (s) => (s.s6_6_tutor_master * 0.1) + (s.s6_6_tutor_practicas * 0.1),
             section6: (s) => Math.min(Calculators.calc61(s) + Calculators.calc62(s) + Calculators.calc63(s) + Calculators.calc64(s) + Calculators.calc65(s) + Calculators.calc66(s), 15.0),
             
             total: (s) => Calculators.section1(s) + Calculators.section2(s) + Calculators.section3(s) + Calculators.section4(s) + Calculators.section5(s) + Calculators.section6(s)
@@ -410,7 +409,7 @@
 
                     ${SubTitle('1.2 Antigüedad en el Cuerpo', 'score-s12')}
                     ${YMInput('1.2.1 Servicio activo en el cuerpo', 's1_2_1_years', 's1_2_1_months')}
-                    ${YMInput('1.2.2 Otros cuerpos (mismo subgrupo)', 's1_2_2_years', 's1_2_2_months')}
+                    ${YMInput('1.2.2 Otros cuerpos (mismo o superior subgrupo)', 's1_2_2_years', 's1_2_2_months')}
                     ${YMInput('1.2.3 Otros cuerpos (subgrupo inferior)', 's1_2_3_years', 's1_2_3_months')}
                 </div>`;
         }
@@ -447,21 +446,22 @@
 
                     ${SubTitle('3.3 Idiomas y Enseñanzas Artísticas', 'score-s33')}
                     <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                        <div class="mb-4">
+                        <div class="mb-4 border-2 border-dashed border-blue-400 p-4 rounded-lg bg-blue-50/50">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Certificados Escuelas Oficiales de Idiomas (EOI)
                                 <div class="tooltip-container">${Icons.help}<span class="tooltip-text">Solo se valora el certificado de nivel más alto aportado por idioma.</span></div>
                             </label>
-                            <div class="grid grid-cols-2 gap-4">
-                                ${NumInput('Nivel C2 (4 pts)', 's3_3_idiomas_c2')}
-                                ${NumInput('Nivel C1 (3 pts)', 's3_3_idiomas_c1')}
-                                ${NumInput('Nivel B2 (2 pts)', 's3_3_idiomas_b2')}
-                                ${NumInput('Nivel B1 (1 pt)', 's3_3_idiomas_b1')}
-                            </div>
+                            <select name="s3_3_idiomas_nivel" onchange="handleInput(this)" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary bg-white">
+                                <option value="none" ${state.s3_3_idiomas_nivel === 'none' ? 'selected' : ''}>Seleccionar nivel acreditado...</option>
+                                <option value="C2" ${state.s3_3_idiomas_nivel === 'C2' ? 'selected' : ''}>Nivel C2 (4 pts)</option>
+                                <option value="C1" ${state.s3_3_idiomas_nivel === 'C1' ? 'selected' : ''}>Nivel C1 (3 pts)</option>
+                                <option value="B2" ${state.s3_3_idiomas_nivel === 'B2' ? 'selected' : ''}>Nivel B2 (2 pts)</option>
+                                <option value="B1" ${state.s3_3_idiomas_nivel === 'B1' ? 'selected' : ''}>Nivel B1 (1 pt)</option>
+                            </select>
                         </div>
 
                         <div class="border-t pt-4 space-y-3">
-                            ${NumInput('Títulos Profesional Música/Danza (2 pts)', 's3_3_titulo_musica')}
+                            ${NumInput('Títulos Profesionales de Música o Danza (2 pts)', 's3_3_titulo_musica')}
                             ${NumInput('Título Técnico Superior Artes Plásticas/Diseño (2 pts)', 's3_3_titulo_arte')}
                         </div>
                     </div>
@@ -615,7 +615,7 @@
                     ${SubTitle('6.6 Tutorización', 'score-s66')}
                     <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
                         ${NumInput('Tutorización máster universitario (0.1 pts)', 's6_6_tutor_master')}
-                        ${NumInput('Tutorización prácticas (funcionarios/directores) (0.3 pts)', 's6_6_tutor_practicas')}
+                        ${NumInput('Tutorización prácticas (funcionarios/directores) (0.1 pts)', 's6_6_tutor_practicas')}
                     </div>
                 </div>`;
         }
